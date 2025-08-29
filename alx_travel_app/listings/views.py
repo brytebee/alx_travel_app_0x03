@@ -1,6 +1,6 @@
 # alx_travel_app/listings/views.py
 
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -9,9 +9,10 @@ from django.urls import reverse
 from django.contrib.sites.shortcuts import get_current_site
 from .models import Booking, Payment
 from .services.payment_service import ChapaPaymentService
-from .tasks import send_payment_confirmation_email
+from .tasks import send_payment_confirmation_email, send_booking_confirmation_email
 import logging
 import uuid
+from .serializers import BookingSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -275,3 +276,14 @@ def payment_status(request, payment_id):
             {'error': 'An unexpected error occurred'}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+class BookingViewSet(viewsets.ModelViewSet):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+
+    def perform_create(self, serializer):
+        booking = serializer.save()
+        if booking.user and booking.user.email:
+            send_booking_confirmation_email.delay(
+                booking.user.email, booking.id
+            )

@@ -1,6 +1,6 @@
 # listings/tasks.py
 
-from celery import shared_task
+from alx_travel_app.listings.celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -41,3 +41,10 @@ def send_payment_confirmation_email(user_email, booking_id, amount):
     except Exception as e:
         logger.error(f"Failed to send payment confirmation email: {str(e)}")
         return False
+
+@shared_task
+def send_booking_confirmation_email(to_email, booking_id):
+    subject = "Booking Confirmation"
+    message = f"Your booking with ID {booking_id} has been confirmed!"
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [to_email])
+    return f"Confirmation email sent to {to_email} for booking {booking_id}"

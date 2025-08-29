@@ -258,5 +258,11 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 EMAIL_USE_TLS = True
 
 # Celery settings (if not already configured)
-CELERY_BROKER_URL = config('REDIS_URL', default='redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = config('REDIS_URL', default='redis://localhost:6379/0')
+# CELERY_BROKER_URL = config('REDIS_URL', default='redis://localhost:6379/0')
+# CELERY_RESULT_BACKEND = config('REDIS_URL', default='redis://localhost:6379/0')
+# Add Celery & Email configs
+CELERY_BROKER_URL = "amqp://guest:guest@localhost:5672//"
+CELERY_RESULT_BACKEND = "rpc://"
+
+# Email settings (example: console backend for dev)
+DEFAULT_FROM_EMAIL = "no-reply@alxtravel.com"
